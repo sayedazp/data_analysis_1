@@ -1,0 +1,89 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+
+```{r load-data}
+load('brfss2013')
+```
+
+
+
+* * *
+
+## Part 1: Data
+I think it is sample modeling. Sample modeling means everyone has an equal chance to be selected. Researchers conducted the questionnare through random dailing. It ensures that everyone has an equal chance to be selected.
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:** How to calculate the number of people who has the same 0 physhlth and 0 menthlth. 
+
+**Research quesion 2:** If one person have longer than 20 days physical illness, label it as long phyillness, if one person have shorter than 20 days physical illness, label it as short phyillness.
+
+**Research quesion 3:** summarize the mean of the day of mental leath, the day of physical health, and the day of mental or physical health.
+
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+NOTE: Insert code chunks as needed by clicking on the "Insert a new code chunk" 
+button (green button with orange arrow) above. Make sure that your code is visible
+in the project you submit. Delete this note when before you submit your work.
+
+**Research quesion 1:**
+
+```{r}
+brfss2013 <- brfss2013 %>%
+  mutate(samehealth = ifelse(physhlth == menthlth, "same", "different"))
+brfss2013 %>% 
+  group_by(physhlth, menthlth, samehealth) %>%
+  summarise(count = n()) %>% 
+  filter(samehealth == "same")
+
+```
+## First of all, create a new column to store the data of whether physhlth equals to menthlth. Then use summarise function to summarise the number of people who has the same number.
+
+
+**Research quesion 2:**
+
+```{r}
+brfss2013 <- brfss2013 %>% 
+  mutate(numlikenzf = as.numeric(physhlth))
+brfss2013 <- brfss2013 %>% 
+  mutate(phymentalhealth = ifelse(physhlth >= 20, "long phyillness", "short phyillness"))
+brfss2013 %>% 
+  group_by(phymentalhealth) %>% 
+  summarise(count = n())
+```
+## First, convert physhlth to the numeric format. Then create a new column called phymentalhealth to store the data of long or short phyillness. At last, count the number of both long phyillness and short phyillness.
+
+
+**Research quesion 3:**
+
+```{r}
+brfss2013 %>% filter(!(is.na(physhlth))) %>%
+  summarise(phymedian = mean(physhlth))
+brfss2013 %>% filter(!(is.na(menthlth))) %>%
+  summarise(menmedian = mean(menthlth))
+brfss2013 %>% filter(!(is.na(poorhlth))) %>%
+  summarise(poormedian = mean(poorhlth))
+```
+## This first chunk is used to calculate the mean of physhlth. The second chunk is used to calculate the mean of menthlth. The third chunk is used to calculate the mean of poorhlth.
